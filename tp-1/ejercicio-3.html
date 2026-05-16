@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>TP1 - Ejercicio 3: Equalizer</title>
+    <style>
+        body { background-color: #d4d0c8; padding: 20px; font-family: sans-serif; }
+        
+        x-equalizer {
+            display: inline-block;
+            border: 2px outset #eee;
+            padding: 10px;
+            background-color: #d4d0c8;
+        }
+
+        .eq-container { display: flex; gap: 5px; }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px inset #fff;
+            padding: 5px;
+            width: 50px;
+        }
+
+        .slider-group label { font-size: 10px; margin-bottom: 5px; }
+
+        .slider-group input[type=range] {
+            appearance: slider-vertical;
+            width: 8px;
+            height: 150px;
+            padding: 0 5px;
+        }
+
+        .db-value { font-size: 10px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <x-equalizer id="miEq"></x-equalizer>
+
+    <script>
+        class Equalizer extends HTMLElement {
+            constructor() {
+                super(); 
+                
+                this._data = {
+                    "32Hz": 0, "64Hz": 0, "130Hz": 0, "260Hz": 0, "500Hz": 0,
+                    "1k": 0, "2k": 0, "4k": 0, "8.3k": 0, "16.5k": 0
+                };
+
+                this.container = document.createElement("div");
+                this.container.className = "eq-container";
+                
+                this._buildInterface();
+            }
+
+            _buildInterface() {
+                
+                while (this.container.firstChild) {
+                    this.container.removeChild(this.container.firstChild);
+                }
+                
+                
+                const self = this;
+
+                for (const [freq, val] of Object.entries(this._data)) {
+                    const group = document.createElement("div");
+                    group.className = "slider-group";
+
+                    const label = document.createElement("label");
+                    label.innerText = freq;
+
+                    const slider = document.createElement("input");
+                    slider.type = "range";
+                    slider.min = -12;
+                    slider.max = 12;
+                    slider.value = val;
+                    slider.dataset.freq = freq; 
+
+                    const dbText = document.createElement("span");
+                    dbText.className = "db-value";
+                    dbText.innerText = (val > 0 ? '+' : '') + val + "dB";
+
+                    
+                    slider.oninput = function () {
+                        self._data[freq] = parseInt(slider.value);
+                        dbText.innerText = (slider.value > 0 ? '+' : '') + slider.value + "dB";
+                    };
+
+                    // Reemplazo de appendChild por append
+                    group.append(label, slider, dbText);
+                    this.container.append(group);
+                }
+                this.append(this.container);
+            }
+
+            getData() {
+                return this._data;
+            }
+
+            setData(newData) {
+                this._data = Object.assign({}, this._data, newData);
+                this._buildInterface();
+            }
+
+            connectedCallback() {
+                console.log("Equalizer listo en el DOM");
+            }
+        }
+
+        customElements.define('x-equalizer', Equalizer);
+
+        // --- PRUEBA DE LOS MÉTODOS (Sin funciones flecha) ---
+        const eq = document.getElementById("miEq");
+        
+        setTimeout(function() {
+            console.log("Datos actuales:", eq.getData());
+            eq.setData({ "1k": 8, "2k": -5, "32Hz": 12 });
+            console.log("Datos actualizados via setData");
+        }, 2000);
+
+    </script>
+</body>
+</html>

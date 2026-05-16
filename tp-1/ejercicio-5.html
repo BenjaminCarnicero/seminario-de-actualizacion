@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 5</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        x-afip-form {
+            display: block; background: white; padding: 20px; border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 600px; margin: auto;
+        }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { 
+            padding: 10px 20px; background-color: #0056b3; color: white; 
+            border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px;
+        }
+        button:hover { background-color: #004494; }
+    </style>
+</head>
+<body>
+
+    <h2>Formulario de Facturación AFIP</h2>
+    <x-afip-form></x-afip-form>
+
+    <script>
+        class AfipForm extends HTMLElement {
+            constructor() {
+                super();
+                this.formContainer = document.createElement("div");
+                this.fields = [
+                    { id: "razonSocial", label: "Razón Social" },
+                    { id: "cuit", label: "CUIT" },
+                    { id: "puntoVenta", label: "Punto de Venta" },
+                    { id: "nroComprobante", label: "Nro. Comprobante" },
+                    { id: "fechaEmision", label: "Fecha de Emisión", type: "date" },
+                    { id: "concepto", label: "Concepto / Producto" },
+                    { id: "importeTotal", label: "Importe Total", type: "number" }
+                ];
+                this.inputs = {};
+                this._buildForm();
+            }
+
+            _buildForm() {
+                
+                const self = this;
+
+                
+                this.fields.forEach(function(field) {
+                    const group = document.createElement("div");
+                    group.className = "form-group";
+                    
+                    const label = document.createElement("label");
+                    label.innerText = field.label;
+                    
+                    const input = document.createElement("input");
+                    input.type = field.type || "text";
+                    
+                    self.inputs[field.id] = input;
+                    
+                    
+                    group.append(label, input);
+                    self.formContainer.append(group);
+                });
+
+                const btnGenerar = document.createElement("button");
+                btnGenerar.innerText = "Generar Factura";
+                
+                
+                btnGenerar.onclick = function() {
+                    self.generarFactura();
+                };
+                
+                
+                this.formContainer.append(btnGenerar);
+                this.append(this.formContainer);
+            }
+
+            generarFactura() {
+                // Ventana en blanco
+                const ventana = window.open("", "_blank");
+                const docNuevaVentana = ventana.document;
+
+                
+                const contenedorFactura = docNuevaVentana.createElement("div");
+                contenedorFactura.style.border = "2px solid #000";
+                contenedorFactura.style.padding = "20px";
+                contenedorFactura.style.fontFamily = "sans-serif";
+                contenedorFactura.style.maxWidth = "800px";
+                contenedorFactura.style.margin = "auto";
+
+                
+                const titulo = docNuevaVentana.createElement("h1");
+                titulo.innerText = "ORIGINAL - FACTURA B";
+                contenedorFactura.append(titulo);
+
+                const self = this;
+
+                
+                this.fields.forEach(function(field) {
+                    const valorIngresado = self.inputs[field.id].value;
+                    
+                    const p = docNuevaVentana.createElement("p");
+                    const b = docNuevaVentana.createElement("b");
+                    b.innerText = field.label + ": ";
+                    
+                    
+                    p.append(b, docNuevaVentana.createTextNode(valorIngresado));
+                    contenedorFactura.append(p);
+                });
+
+                
+                docNuevaVentana.body.append(contenedorFactura);
+                docNuevaVentana.close();
+            }
+        }
+
+        customElements.define('x-afip-form', AfipForm);
+    </script>
+</body>
+</html>

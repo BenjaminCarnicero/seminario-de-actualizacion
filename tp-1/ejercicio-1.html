@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 1</title>
+    <style>
+        
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 30px;
+        }
+        input { padding: 8px; width: 250px; }
+        button { padding: 10px 20px; background-color: #28a745; color: white; border: none; cursor: pointer; }
+        #saludo-final { font-weight: bold; font-size: 1.2rem; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <script>
+       
+        const inputNombre = document.createElement("input");
+        inputNombre.placeholder = "Escriba su nombre aquí...";
+
+        const inputApellido = document.createElement("input");
+        inputApellido.placeholder = "Escriba su apellido aquí...";
+
+        const botonEnviar = document.createElement("button");
+        botonEnviar.innerText = "Generar Saludo";
+
+        const contenedorMensaje = document.createElement("div");
+        contenedorMensaje.id = "saludo-final";
+
+       
+        function ejecutarSaludo() {
+            const nombreOriginal = inputNombre.value.trim();
+            const apellidoOriginal = inputApellido.value.trim();
+
+            if (nombreOriginal === "" || apellidoOriginal === "") {
+                contenedorMensaje.innerText = "Por favor, complete ambos campos.";
+                return;
+            }
+
+            
+            const apellidoMayus = apellidoOriginal.toUpperCase();
+
+            
+            const nombreFormateado = nombreOriginal.charAt(0).toUpperCase() + 
+                                   nombreOriginal.slice(1).toLowerCase();
+
+            
+            contenedorMensaje.innerText = `¡Buenos días ${apellidoMayus}, ${nombreFormateado}!`;
+        }
+
+       
+        botonEnviar.onclick = ejecutarSaludo;
+
+        document.body.append(inputNombre, inputApellido, botonEnviar, contenedorMensaje);
+    </script>
+</body>
+</html> 

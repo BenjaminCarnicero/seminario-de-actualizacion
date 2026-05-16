@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ejercicio 2</title>
+    <style>
+        body { font-family: sans-serif; padding: 30px; display: flex; flex-direction: column; gap: 10px; }
+        input { padding: 8px; width: 250px; }
+        button { padding: 10px; width: 100px; cursor: pointer; }
+        .error { color: red; font-weight: bold; }
+        .exito { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <script>
+        //mapeo
+        const label = document.createElement("label");
+        label.innerText = "Ingrese su fecha de nacimiento (AAAA-MM-DD):";
+
+        const inputFecha = document.createElement("input");
+        inputFecha.type = "text"; 
+        inputFecha.placeholder = "Ej: 1995-05-15";
+
+        const botonValidar = document.createElement("button");
+        botonValidar.innerText = "Validar";
+
+        const mensaje = document.createElement("div");
+
+        
+        let reintentos = 0;
+
+        
+        function validarFecha() {
+            const fechaIngresada = inputFecha.value;
+            const dateObj = new Date(fechaIngresada);
+
+            // dateObj.getTime() devuelve NaN si la conversión falló por formato invalido
+            const esValida = !isNaN(dateObj.getTime());
+
+            if (esValida) {
+                mensaje.className = "exito";
+                mensaje.innerText = `¡Fecha válida! Naciste el ${dateObj.toLocaleDateString()}.`;
+                
+                
+                botonValidar.disabled = true;
+                inputFecha.disabled = true;
+            } else {
+                reintentos++;
+                mensaje.className = "error";
+                mensaje.innerText = `Error: El texto "${fechaIngresada}" es inválido. Intento N°: ${reintentos}. Vuelva a intentarlo.`;
+                inputFecha.value = ""; 
+                inputFecha.focus();    
+            }
+        }
+
+        
+        botonValidar.onclick = validarFecha;
+
+        
+        document.body.append(label, inputFecha, botonValidar, mensaje);
+    </script>
+</body>
+</html>

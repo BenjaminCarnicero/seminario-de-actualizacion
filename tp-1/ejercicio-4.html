@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>TP1 - Ejercicio 4: Chat Component</title>
+    <style>
+        /* Estilos extraídos de W3Schools para que el componente se vea igual */
+        body { font-family: Arial, Helvetica, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        
+        
+        .chat-container {
+            border: 2px solid #dedede;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            overflow: hidden; 
+        }
+
+        .darker { border-color: #ccc; background-color: #ddd; }
+
+        .chat-container img {
+            float: left;
+            max-width: 60px;
+            width: 100%;
+            margin-right: 20px;
+            border-radius: 50%;
+        }
+
+        .chat-container img.right { float: right; margin-left: 20px; margin-right: 0; }
+
+        .time-right { float: right; color: #aaa; }
+        .time-left { float: left; color: #999; }
+    </style>
+</head>
+<body>
+
+    <h2>Chat Interactivo</h2>
+    
+    <x-chat-box id="miChat"></x-chat-box>
+
+    <script>
+        class ChatBox extends HTMLElement {
+            constructor() {
+                super(); 
+                // Contenedor principal donde se suman los mensajes
+                this.main = document.createElement("div");
+                
+                this.append(this.main);
+            }
+
+            
+            addMessage(texto, imgUrl, hora, esDerecha = false) {
+                // 1. Crear el contenedor del mensaje (el "mapeo" de la etiqueta div)
+                const container = document.createElement("div");
+                container.className = esDerecha ? "chat-container darker" : "chat-container";
+
+                
+                const img = document.createElement("img");
+                img.src = imgUrl;
+                img.alt = "Avatar";
+                if (esDerecha) img.className = "right";
+
+                
+                const p = document.createElement("p");
+                p.innerText = texto;
+
+                const span = document.createElement("span");
+                span.className = esDerecha ? "time-left" : "time-right";
+                span.innerText = hora;
+
+                
+                container.append(img, p, span);
+
+                
+                this.main.append(container);
+            }
+        }
+
+        //Custom Elements
+        customElements.define('x-chat-box', ChatBox);
+
+        
+        const chat = document.getElementById("miChat");
+
+        // Mensajes
+        chat.addMessage("Hello. How are you today?", "https://www.w3schools.com/w3images/bandmember.jpg", "11:00");
+        chat.addMessage("Hey! I'm fine. Thanks for asking!", "https://www.w3schools.com/w3images/avatar_g2.jpg", "11:01", true);
+        chat.addMessage("Sweet! So, what do you wanna do today?", "https://www.w3schools.com/w3images/bandmember.jpg", "11:02");
+        
+    </script>
+</body>
+</html>
