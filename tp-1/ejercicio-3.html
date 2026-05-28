@@ -38,8 +38,6 @@
 </head>
 <body>
 
-    <x-equalizer id="miEq"></x-equalizer>
-
     <script>
         class Equalizer extends HTMLElement {
             constructor() {
@@ -52,16 +50,12 @@
 
                 this.container = document.createElement("div");
                 this.container.className = "eq-container";
-                
-                this._buildInterface();
             }
 
             _buildInterface() {
-                
                 while (this.container.firstChild) {
                     this.container.removeChild(this.container.firstChild);
                 }
-                
                 
                 const self = this;
 
@@ -83,13 +77,15 @@
                     dbText.className = "db-value";
                     dbText.innerText = (val > 0 ? '+' : '') + val + "dB";
 
-                    
-                    slider.oninput = function () {
+                    // correccion de funcion anonima, declaro una funcion
+                    function actualizarFrecuencia() {
                         self._data[freq] = parseInt(slider.value);
                         dbText.innerText = (slider.value > 0 ? '+' : '') + slider.value + "dB";
-                    };
+                    }
 
-                    // Reemplazo de appendChild por append
+                    
+                    slider.oninput = actualizarFrecuencia;
+
                     group.append(label, slider, dbText);
                     this.container.append(group);
                 }
@@ -107,19 +103,27 @@
 
             connectedCallback() {
                 console.log("Equalizer listo en el DOM");
+                this._buildInterface();
             }
         }
 
         customElements.define('x-equalizer', Equalizer);
 
-        // --- PRUEBA DE LOS MÉTODOS (Sin funciones flecha) ---
-        const eq = document.getElementById("miEq");
-        
-        setTimeout(function() {
-            console.log("Datos actuales:", eq.getData());
+        // Funcion main
+        function main() {
+            // Componente en memoria
+            const eq = document.createElement("x-equalizer");
+            
+            document.body.append(eq);
+            
+            
+            console.log("Datos iniciales del ecualizador:", eq.getData());
             eq.setData({ "1k": 8, "2k": -5, "32Hz": 12 });
-            console.log("Datos actualizados via setData");
-        }, 2000);
+            console.log("Datos actualizados inmediatamente vía setData en main()");
+        }
+
+        
+        window.onload = main;
 
     </script>
 </body>
