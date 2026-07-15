@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>TP1 - Ejercicio 3: Equalizer</title>
+    <title>Ejercicio 3 - Equalizer</title>
     <style>
         body { background-color: #d4d0c8; padding: 20px; font-family: sans-serif; }
         
@@ -26,11 +26,14 @@
 
         .slider-group label { font-size: 10px; margin-bottom: 5px; }
 
+        /* Estilo moderno y estandarizado para sliders verticales */
         .slider-group input[type=range] {
-            appearance: slider-vertical;
-            width: 8px;
+            writing-mode: vertical-lr;
+            direction: rtl;
+            width: 15px;
             height: 150px;
             padding: 0 5px;
+            cursor: pointer;
         }
 
         .db-value { font-size: 10px; margin-top: 5px; }
@@ -43,21 +46,17 @@
             constructor() {
                 super(); 
                 
+             
                 this._data = {
                     "32Hz": 0, "64Hz": 0, "130Hz": 0, "260Hz": 0, "500Hz": 0,
                     "1k": 0, "2k": 0, "4k": 0, "8.3k": 0, "16.5k": 0
                 };
 
+                this._slidersReferences = [];
+
+                //Construccion estatica del DOM
                 this.container = document.createElement("div");
                 this.container.className = "eq-container";
-            }
-
-            _buildInterface() {
-                while (this.container.firstChild) {
-                    this.container.removeChild(this.container.firstChild);
-                }
-                
-                const self = this;
 
                 for (const [freq, val] of Object.entries(this._data)) {
                     const group = document.createElement("div");
@@ -71,39 +70,71 @@
                     slider.min = -12;
                     slider.max = 12;
                     slider.value = val;
-                    slider.dataset.freq = freq; 
 
                     const dbText = document.createElement("span");
                     dbText.className = "db-value";
                     dbText.innerText = (val > 0 ? '+' : '') + val + "dB";
 
-                    // correccion de funcion anonima, declaro una funcion
-                    function actualizarFrecuencia() {
-                        self._data[freq] = parseInt(slider.value);
-                        dbText.innerText = (slider.value > 0 ? '+' : '') + slider.value + "dB";
-                    }
-
-                    
-                    slider.oninput = actualizarFrecuencia;
-
                     group.append(label, slider, dbText);
                     this.container.append(group);
+
+                    this._slidersReferences.push({
+                        frecuencia: freq,
+                        inputSlider: slider,
+                        textoDB: dbText
+                    });
                 }
-                this.append(this.container);
             }
 
+            // Manejadores de eventos
+            onSliderInputChange(referenceObject, event) {
+                const nuevoValor = parseInt(event.currentTarget.value);
+                this._data[referenceObject.frecuencia] = nuevoValor;
+                referenceObject.textoDB.innerText = (nuevoValor > 0 ? '+' : '') + nuevoValor + "dB";
+            }
+
+            // getter / setter
             getData() {
                 return this._data;
             }
 
             setData(newData) {
                 this._data = Object.assign({}, this._data, newData);
-                this._buildInterface();
+                
+                for (let i = 0; i < this._slidersReferences.length; i++) {
+                    const ref = this._slidersReferences[i];
+                    if (newData[ref.frecuencia] !== undefined) {
+                        const valorActualizado = newData[ref.frecuencia];
+                        ref.inputSlider.value = valorActualizado;
+                        ref.textoDB.innerText = (valorActualizado > 0 ? '+' : '') + valorActualizado + "dB";
+                    }
+                }
             }
 
+            // Ciclo de vida del WebComponent
             connectedCallback() {
                 console.log("Equalizer listo en el DOM");
-                this._buildInterface();
+                
+                
+                this.append(this.container);
+                
+                for (let i = 0; i < this._slidersReferences.length; i++) {
+                    const ref = this._slidersReferences[i];
+
+                    // Enlazo de forma explícita con bind(this) pasando el objeto de referencia
+                    ref._boundHandler = this.onSliderInputChange.bind(this, ref);
+                    ref.inputSlider.oninput = ref._boundHandler;
+                }
+            }
+
+            disconnectedCallback() {
+                console.log("Equalizer removido del DOM");
+                //Operación estrictamente inversa al connectedCallback
+                for (let i = 0; i < this._slidersReferences.length; i++) {
+                    const ref = this._slidersReferences[i];
+                    ref.inputSlider.oninput = null;
+                    ref._boundHandler = null;
+                }
             }
         }
 
@@ -114,17 +145,15 @@
             // Componente en memoria
             const eq = document.createElement("x-equalizer");
             
-            document.body.append(eq);
             
+            document.body.append(eq);
             
             console.log("Datos iniciales del ecualizador:", eq.getData());
             eq.setData({ "1k": 8, "2k": -5, "32Hz": 12 });
-            console.log("Datos actualizados inmediatamente vía setData en main()");
+            console.log("Datos actualizados inmediatamente en el main()");
         }
 
-        
         window.onload = main;
-
     </script>
 </body>
 </html>

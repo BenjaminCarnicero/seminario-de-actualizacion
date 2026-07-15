@@ -5,15 +5,14 @@
     <title>Conversor C° / F° Mardel</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
-        /* Estilos para replicar la tabla de la imagen */
-        x-weather-table{
+        
+        x-weather-table-extended {
             display: block;
             margin: 20px auto;
             max-width: 90%;
             overflow-x: auto;
         }
 
-        /* Estilo para el boton interactivo */
         .btn-toggle {
             display: block;
             margin: 10px auto;
@@ -41,7 +40,7 @@
         th { background-color: #eaecf0; font-weight: bold; }
         .row-header { text-align: left; font-weight: bold; background-color: #eaecf0; width: 150px; }
 
-        /* Colores de fondo aproximados basados en la imagen */
+        /* Colores de fondo de la tabla original */
         .t-max-abs { background-color: #cc1111; color: white; font-weight: bold; }
         .t-max-med { background-color: #ff5500; color: black; }
         .t-med { background-color: #ffaa00; color: black; }
@@ -56,14 +55,14 @@
 <body>
 
     <h2>Parámetros Climáticos de Mar del Plata (Conversor de Escala)</h2>
+
     <script>
         class WeatherTableExtended extends HTMLElement {
             constructor() {
                 super();
                 
-                // Escala inicial en celsius ('C' o 'F')
+                // Estado interno
                 this._currentScale = 'C';
-
                 this._months = ["Ene.", "Feb.", "Mar.", "Abr.", "May.", "Jun.", "Jul.", "Ago.", "Sep.", "Oct.", "Nov.", "Dic.", "Anual"];
                 
                 this._weatherData = [
@@ -78,105 +77,135 @@
                     { label: "Humedad relativa (%)", class: "humedad", isTemp: false, values: [76, 77, 79, 81, 83, 84, 81, 81, 80, 80, 77, 76, 80] }
                 ];
 
-                // Contenedor principal del componente
+                this._tempCellsReferences = [];
+
+                // Construccion del DOM
                 this.container = document.createElement("div");
+                
                 this.button = document.createElement("button");
                 this.button.className = "btn-toggle";
-                
+                this.button.innerText = "Cambiar a Fahrenheit (°F)";
+
                 this.table = document.createElement("table");
-            }
 
-            _render() {
-                // Limpieza del contenedor
-                while (this.table.firstChild) { this.table.removeChild(this.table.firstChild); }
-                while (this.container.firstChild) { this.container.removeChild(this.container.firstChild); }
-
-                // Configurar texto del botón segun la escala
-                this.button.innerText = "Cambiar a " + (this._currentScale === 'C' ? "Fahrenheit (°F)" : "Celsius (°C)");
-
-                // 1. Fila de meses
+                // Fila de encabezados (Meses)
                 const headerRow = document.createElement("tr");
                 const firstHeader = document.createElement("th");
                 firstHeader.innerText = "Mes";
                 headerRow.append(firstHeader);
 
-                this._months.forEach(function(month) {
+                for (const month of this._months) {
                     const th = document.createElement("th");
                     th.innerText = month;
                     headerRow.append(th);
-                });
+                }
                 this.table.append(headerRow);
 
-                // 2. Filas de datos
-                const self = this;
-                this._weatherData.forEach(function(rowData) {
+                // Filas de datos climáticos
+                for (const rowData of this._weatherData) {
                     const row = document.createElement("tr");
                     
                     const headerCell = document.createElement("td");
                     headerCell.className = "row-header";
-                    
-                    headerCell.innerText = rowData.label + (rowData.isTemp ? " (°" + self._currentScale + ")" : "");
+                    headerCell.innerText = rowData.label + (rowData.isTemp ? " (°C)" : "");
                     row.append(headerCell);
 
-                    rowData.values.forEach(function(val) {
+                    for (const val of rowData.values) {
                         const td = document.createElement("td");
                         td.className = rowData.class;
-
-                        // Si la fila es de temperatura y la escala es F, aplicamos la conversión matemática
-                        if (rowData.isTemp && self._currentScale === 'F') {
-                            const fahrenheitVal = (val * 1.8) + 32;
-                            td.innerText = fahrenheitVal.toFixed(1); // Redondeo decimal
-                        } else {
-                            td.innerText = val;
-                        }
-                        
+                        td.innerText = val;
                         row.append(td);
-                    });
 
-                    self.table.append(row);
-                });
+                        if (rowData.isTemp) {
+                            this._tempCellsReferences.push({
+                                elementTd: td,
+                                celsiusValue: val
+                            });
+                        }
+                    }
 
-                
-                this.container.append(this.button, this.table);
-                this.append(this.container);
-            }
+                    if (rowData.isTemp) {
+                        this._tempCellsReferences.push({
+                            elementHeaderCell: headerCell,
+                            baseLabel: rowData.label
+                        });
+                    }
 
-            
-            _handleToggleScale() {
-                
-                this._currentScale = this._currentScale === 'C' ? 'F' : 'C';
-                console.log("Escala cambiada a: °" + this._currentScale);
-                
-                this._render();
-            }
-
-            connectedCallback() {
-                console.log("Componente x-weather-table-extended conectado.");
-                
-                
-                const self = this;
-                function alHacerClick() {
-                    self._handleToggleScale();
+                    this.table.append(row);
                 }
-                this.button.onclick = alHacerClick;
 
-                this._render();
+                this.container.append(this.button, this.table);
+            }
+
+            // Metodos publicos
+            getTemperatureAverages() {
+                const averages = {};
+                for (const row of this._weatherData) {
+                    if (row.isTemp) {
+                        // El último valor del array es el promedio Anual (índice 12)
+                        averages[row.label] = row.values[12];
+                    }
+                }
+                return averages;
+            }
+
+            // Interaccion (logica)
+            onToggleScale() {
+                this._currentScale = this._currentScale === 'C' ? 'F' : 'C';
+
+                // Modificar el texto del botón
+                this.button.innerText = "Cambiar a " + (this._currentScale === 'C' ? "Fahrenheit (°F)" : "Celsius (°C)");
+
+                // Actualizar los valores (sin alterar el DOM de la tabla completa)
+                for (const ref of this._tempCellsReferences) {
+                    if (ref.elementTd) {
+                        if (this._currentScale === 'F') {
+                            const fahrenheitVal = (ref.celsiusValue * 1.8) + 32;
+                            ref.elementTd.innerText = fahrenheitVal.toFixed(1);
+                        } else {
+                            ref.elementTd.innerText = ref.celsiusValue;
+                        }
+                    } else if (ref.elementHeaderCell) {
+                        ref.elementHeaderCell.innerText = ref.baseLabel + " (°" + this._currentScale + ")";
+                    }
+                }
+            }
+
+            // Ciclo de vida
+            connectedCallback() {
+                
+                // 1. Inyectamos la estructura prearmada al DOM (Cero rendering dinámico acá)
+                this.append(this.container);
+
+                // 2. Vinculamos el manejador de forma segura y asignamos el evento
+                this._boundToggleHandler = this.onToggleClick.bind(this);
+                this.button.addEventListener('click', this._boundToggleHandler);
             }
 
             disconnectedCallback() {
-                console.log("Componente x-weather-table-extended desconectado.");
+                
+                this.button.removeEventListener('click', this._boundToggleHandler);
+                this._boundToggleHandler = null;
+                this.container.remove();
+            }
+
+            // Alias semántico para enlazar el evento sin callbacks anónimos
+            onToggleClick() {
+                this.onToggleScale();
             }
         }
 
         customElements.define('x-weather-table-extended', WeatherTableExtended);
 
-        
+        // Funcion main
         function main() {
             const extendedTable = document.createElement("x-weather-table-extended");
             document.body.append(extendedTable);
+
+            console.log("Conjunto de promedios de temperatura (Valores Anuales):");
+            console.log(extendedTable.getTemperatureAverages());
         }
 
-        
         window.onload = main;
     </script>
 </body>

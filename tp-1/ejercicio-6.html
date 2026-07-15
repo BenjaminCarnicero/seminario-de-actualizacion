@@ -6,7 +6,6 @@
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
         
-        /* Estilos para replicar la tabla de la imagen */
         x-weather-table {
             display: block;
             margin: 20px auto;
@@ -31,7 +30,6 @@
         th { background-color: #eaecf0; font-weight: bold; }
         .row-header { text-align: left; font-weight: bold; background-color: #eaecf0; width: 150px; }
 
-        /* Colores de fondo aproximados basados en la imagen */
         .t-max-abs { background-color: #cc1111; color: white; font-weight: bold; }
         .t-max-med { background-color: #ff5500; color: black; }
         .t-med { background-color: #ffaa00; color: black; }
@@ -46,15 +44,15 @@
 <body>
 
     <h2>Parámetros Climáticos de Mar del Plata</h2>
+
     <script>
         class WeatherTable extends HTMLElement {
             constructor() {
                 super();
                 
-                // Estructura de datos completa segun la imagen (12 meses + Anual)
+                // Estado interno
                 this._months = ["Ene.", "Feb.", "Mar.", "Abr.", "May.", "Jun.", "Jul.", "Ago.", "Sep.", "Oct.", "Nov.", "Dic.", "Anual"];
                 
-                //propiedad interna: array de objetos
                 this._weatherData = [
                     { label: "Temp. máx. abs. (°C)", class: "t-max-abs", values: [42.4, 38.1, 36.3, 32.5, 27.4, 22.2, 27.7, 24.7, 28.8, 34.4, 35.7, 39.4, 39.4] },
                     { label: "Temp. máx. media (°C)", class: "t-max-med", values: [26.3, 25.8, 23.7, 20.5, 16.8, 13.8, 13.1, 14.4, 16.0, 18.5, 21.7, 24.4, 19.6] },
@@ -67,28 +65,24 @@
                     { label: "Humedad relativa (%)", class: "humedad", values: [76, 77, 79, 81, 83, 84, 81, 81, 80, 80, 77, 76, 80] }
                 ];
 
+                // Construccion del DOM
                 this.table = document.createElement("table");
-            }
 
-            _render() {
-                // 1. Crear fila de encabezados (Meses)
+                // Fila de encabezados (Meses)
                 const headerRow = document.createElement("tr");
                 const firstHeader = document.createElement("th");
                 firstHeader.innerText = "Mes";
                 headerRow.append(firstHeader);
 
-                const self = this;
-                
-                // For para los meses
-                this._months.forEach(function(month) {
+                for (const month of this._months) {
                     const th = document.createElement("th");
                     th.innerText = month;
                     headerRow.append(th);
-                });
+                }
                 this.table.append(headerRow);
 
-                // Datos meteorológicos: filas
-                this._weatherData.forEach(function(rowData) {
+                // Filas de datos climáticos
+                for (const rowData of this._weatherData) {
                     const row = document.createElement("tr");
                     
                     const headerCell = document.createElement("td");
@@ -96,66 +90,59 @@
                     headerCell.innerText = rowData.label;
                     row.append(headerCell);
 
-                    rowData.values.forEach(function(val) {
+                    for (const val of rowData.values) {
                         const td = document.createElement("td");
                         td.className = rowData.class;
                         td.innerText = val;
                         row.append(td);
-                    });
+                    }
 
-                    self.table.append(row);
-                });
-
-                this.append(this.table);
+                    this.table.append(row);
+                }
             }
 
-
-            // Retorna un objeto con los promedios anuales de cada tipo de temperatura
+            // Metodos publicos 
             getTemperatureAverages() {
                 const averages = {};
-                const self = this;
 
-                this._weatherData.forEach(function(row) {
+                for (const row of this._weatherData) {
                     // Si el label contiene la palabra "Temp.", es una fila de temperatura
                     if (row.label.indexOf("Temp.") !== -1) {
-                        // El último valor de la lista es el valor Anual (indice 12)
+                        // El último valor de la lista es el valor Anual (índice 12)
                         averages[row.label] = row.values[12];
                     }
-                });
+                }
 
                 return averages;
             }
 
+            // Ciclo de vida
             connectedCallback() {
                 console.log("Componente x-weather-table conectado.");
-                this._render();
+                
+                this.append(this.table);
             }
 
-            
             disconnectedCallback() {
                 console.log("Componente x-weather-table desconectado.");
+                
+                // Revierte la inyección del connectedCallback para evitar pérdidas de memoria
+                this.table.remove();
             }
         }
 
-        
         customElements.define('x-weather-table', WeatherTable);
 
-        // Main: Instanciación dinámica en JS
+        // Funcion main
         function main() {
             const weatherComp = document.createElement("x-weather-table");
-            
-            
             document.body.append(weatherComp);
 
-            
-            console.log("--- Datos solicitados por la consigna ---");
             console.log("Conjunto de promedios de temperatura (Valores Anuales):");
             console.log(weatherComp.getTemperatureAverages());
         }
 
-        
         window.onload = main;
-
     </script>
 </body>
 </html>
