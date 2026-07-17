@@ -107,7 +107,7 @@
                     
                     const headerCell = document.createElement("td");
                     headerCell.className = "row-header";
-                    headerCell.innerText = rowData.label + (rowData.isTemp ? " (°C)" : "");
+                    headerCell.innerText = rowData.label + (rowData.isTemp ? " (°" + this._currentScale + ")" : "");
                     row.append(headerCell);
 
                     for (const val of rowData.values) {
@@ -173,20 +173,16 @@
 
             // Ciclo de vida
             connectedCallback() {
+                console.log("Componente x-weather-table-extended conectado.");
                 
-                // 1. Inyectamos la estructura prearmada al DOM (Cero rendering dinámico acá)
-                this.append(this.container);
-
-                // 2. Vinculamos el manejador de forma segura y asignamos el evento
-                this._boundToggleHandler = this.onToggleClick.bind(this);
-                this.button.addEventListener('click', this._boundToggleHandler);
+                //Asignacion del manejador
+                this.button.onclick = this.onToggleClick.bind(this);
             }
 
             disconnectedCallback() {
+                console.log("Componente x-weather-table-extended desconectado.");
                 
-                this.button.removeEventListener('click', this._boundToggleHandler);
-                this._boundToggleHandler = null;
-                this.container.remove();
+                this.button.onclick = null;
             }
 
             // Alias semántico para enlazar el evento sin callbacks anónimos
@@ -200,6 +196,7 @@
         // Funcion main
         function main() {
             const extendedTable = document.createElement("x-weather-table-extended");
+            extendedTable.append(extendedTable.container);
             document.body.append(extendedTable);
 
             console.log("Conjunto de promedios de temperatura (Valores Anuales):");

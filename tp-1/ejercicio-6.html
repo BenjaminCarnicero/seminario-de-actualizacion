@@ -119,15 +119,10 @@
             // Ciclo de vida
             connectedCallback() {
                 console.log("Componente x-weather-table conectado.");
-                
-                this.append(this.table);
             }
 
             disconnectedCallback() {
                 console.log("Componente x-weather-table desconectado.");
-                
-                // Revierte la inyección del connectedCallback para evitar pérdidas de memoria
-                this.table.remove();
             }
         }
 
@@ -136,6 +131,8 @@
         // Funcion main
         function main() {
             const weatherComp = document.createElement("x-weather-table");
+
+            weatherComp.append(weatherComp.table);
             document.body.append(weatherComp);
 
             console.log("Conjunto de promedios de temperatura (Valores Anuales):");

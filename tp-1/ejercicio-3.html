@@ -115,9 +115,6 @@
             connectedCallback() {
                 console.log("Equalizer listo en el DOM");
                 
-                
-                this.append(this.container);
-                
                 for (let i = 0; i < this._slidersReferences.length; i++) {
                     const ref = this._slidersReferences[i];
 
@@ -144,8 +141,8 @@
         function main() {
             // Componente en memoria
             const eq = document.createElement("x-equalizer");
-            
-            
+            eq.append(eq.container);
+
             document.body.append(eq);
             
             console.log("Datos iniciales del ecualizador:", eq.getData());
