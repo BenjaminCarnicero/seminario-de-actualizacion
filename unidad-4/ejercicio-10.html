@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Extremo de lineas</title>
+    <script src="MVCCanvas.js"></script>
+</head>
+<body>
+
+    <script type="text/javascript">
+        // Funcion para las terminaciones (lineCap) y uniones (lineJoin)
+        function drawLineStyles(canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.lineWidth = 20;
+
+            // Linea 1
+            ctx.beginPath();
+            ctx.lineCap = 'butt';
+            ctx.lineJoin = 'bevel';
+            ctx.moveTo(50, 150);
+            ctx.lineTo(150, 50);
+            ctx.lineTo(250, 150);
+            ctx.stroke();
+
+            // Linea 2
+            ctx.beginPath();
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.moveTo(300, 150);
+            ctx.lineTo(400, 50);
+            ctx.lineTo(500, 150);
+            ctx.stroke();
+
+            // Linea 3
+            ctx.beginPath();
+            ctx.lineCap = 'square';
+            ctx.lineJoin = 'miter';
+            ctx.moveTo(550, 150);
+            ctx.lineTo(650, 50);
+            ctx.lineTo(750, 150);
+            ctx.stroke();
+        }
+
+        
+        function exercise10(canvas) {
+            drawLineStyles(canvas);
+        }
+
+        
+        function main() {
+            const view = new View();
+            document.body.appendChild(view);
+
+            view.render(exercise10);
+        }
+
+        window.onload = main;
+    </script>
+
+</body>
+</html>

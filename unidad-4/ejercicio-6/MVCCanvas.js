@@ -27,6 +27,8 @@ class View extends HTMLElement {
         this._canvas = document.createElement('canvas');
         this.btnLoadFigure = document.createElement('button');
         this.btnClear = document.createElement('button');
+        this.inputLineWidth = document.createElement('input');
+        this.inputLineType = document.createElement('input');
 
         this._canvas.width = 800;
         this._canvas.height = 600;
@@ -35,10 +37,15 @@ class View extends HTMLElement {
 
         this.btnLoadFigure.innerText = "Cargar figuras";
         this.btnClear.innerText = "Limpiar";
+        this.inputLineWidth.type = 'number';
+        this.inputLineWidth.placeholder = "Grosor de linea";
+        this.inputLineType.placeholder = "Continua o punteada";
 
         this.append(this._canvas);
         this.append(this.btnLoadFigure);
         this.append(this.btnClear);
+        this.append(this.inputLineWidth);
+        this.append(this.inputLineType);
     }
     
     render(figures) {
@@ -47,6 +54,17 @@ class View extends HTMLElement {
             const figure = figures[i];
 
             this.ctx.beginPath();
+            this.ctx.lineWidth = figure.lineWidth || 1; //trazado de linea
+            
+            const lineType = (figure.lineType || '').toLowerCase().trim();
+            if (lineType === 'dashed' || lineType === 'punteada') {
+                this.ctx.setLineDash([5, 5]);
+            } else {
+                this.ctx.setLineDash([]);
+            }
+
+            this.ctx.lineCap = figure.lineCap || 'round';
+            this.ctx.lineJoin = figure.lineJoin || 'round';
             
             if (figure.type === 'circle') {
                 this.ctx.arc(figure.x, figure.y, figure.radius, 0, 2 * Math.PI);
@@ -77,11 +95,18 @@ class View extends HTMLElement {
     }
     
     onLoadClick() {
-        this.dispatchEvent(new CustomEvent('request', { 
-            detail: { action: 'load' },
-            bubbles: true 
-        }));
-    }
+    const widthVal = parseInt(this.inputLineWidth.value);
+    const lineTypeVal = this.inputLineType.value.trim();
+
+    this.dispatchEvent(new CustomEvent('request', { 
+        detail: { 
+            action: 'load',
+            lineType: lineTypeVal !== '' ? lineTypeVal : 'solid',
+            lineWidth: !isNaN(widthVal) && widthVal > 0 ? widthVal : 1
+        },
+        bubbles: true 
+    }));
+}
 
     onClearClick() {
         this.dispatchEvent(new CustomEvent('request', { 
@@ -123,7 +148,6 @@ class Controller {
             let newFigure;
             const x = Math.floor(Math.random() * 650) + 50;
             const y = Math.floor(Math.random() * 450) + 50;
-
             const randomType = Math.floor(Math.random() * 3);
 
             if (randomType === 0) {
@@ -143,6 +167,9 @@ class Controller {
                     { x: x, y: y + side }
                 ]);
             }
+
+            newFigure.lineType = detail.lineType || 'solid';
+            newFigure.lineWidth = detail.lineWidth || 1;
 
             this._model.addFigure(newFigure);
 

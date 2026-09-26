@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Lineas verticales</title>
+    <script src="MVCCanvas.js"></script>
+</head>
+<body>
+
+    <script type="text/javascript">
+        function drawVariableLines(canvas) {
+            const ctx = canvas.getContext('2d');
+            let x = 20;
+
+            for (let thickness = 1; thickness <= 25; thickness++) { //grosor
+                ctx.beginPath();
+                ctx.lineWidth = thickness;
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+
+                x += thickness + 16;
+            }
+        }
+
+        
+        function exercise9(canvas) {
+            drawVariableLines(canvas);
+        }
+
+        
+        function main() {
+            const view = new View();
+            document.body.appendChild(view);
+
+            view.render(exercise9);
+        }
+
+        window.onload = main;
+    </script>
+
+</body>
+</html>

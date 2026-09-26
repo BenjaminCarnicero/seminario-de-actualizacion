@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Líneas punteadas</title>
+    <script src="MVCCanvas.js"></script>
+</head>
+<body>
+
+    <script type="text/javascript">
+        
+        function drawDiagonalGrid(canvas) {
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const step = 15;
+            let counter = 0;
+
+            ctx.lineWidth = 1;
+
+            for (let offset = -height; offset < width; offset += step) {
+                ctx.beginPath();
+
+                // Alterna entre trazo continuo y punteado
+                if (counter % 2 === 0) {
+                    ctx.setLineDash([]);
+                } else {
+                    ctx.setLineDash([5, 5]);
+                }
+
+                ctx.moveTo(offset, 0);
+                ctx.lineTo(offset + height, height);
+                ctx.stroke();
+
+                counter++;
+            }
+        }
+
+
+        function exercise11(canvas) {
+            drawDiagonalGrid(canvas);
+        }
+
+        function main() {
+            const view = new View();
+            document.body.appendChild(view);
+
+            view.render(exercise11);
+        }
+
+        window.onload = main;
+    </script>
+
+</body>
+</html>
