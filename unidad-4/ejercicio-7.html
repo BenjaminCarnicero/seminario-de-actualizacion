@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Grafico de torta</title>
+    <script src="MVCCanvas.js"></script>
+</head>
+<body>
+
+    <script type="text/javascript">
+        
+        function drawPieChart(canvas, percentageData) {
+            const ctx = canvas.getContext('2d');
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 180;
+
+            let startAngle = 0;
+
+            
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let i = 0; i < percentageData.length; i++) {
+                const percentage = percentageData[i];
+                const endAngle = startAngle + (percentage * Math.PI * 2);
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.stroke();
+
+                // Calculo de la posicion para el texto del porcentaje
+                const middleAngle = (startAngle + endAngle) / 2;
+                const textDistance = radius * 0.65; // Colocar a 65% del radio
+                const textX = centerX + textDistance * Math.cos(middleAngle);
+                const textY = centerY + textDistance * Math.sin(middleAngle);
+
+                // Renderizar porcentaje (ej: 0.30 -> "30%")
+                const labelText = (percentage * 100) + '%';
+                ctx.fillText(labelText, textX, textY);
+
+                startAngle = endAngle;
+            }
+        }
+
+        
+        function exercise7(canvas) {
+            const data = [0.30, 0.50, 0.10, 0.10];
+            drawPieChart(canvas, data);
+        }
+
+        
+        function main() {
+            const view = new View();
+            document.body.appendChild(view);
+
+            view.render(exercise7);
+        }
+
+        window.onload = main;
+    </script>
+
+</body>
+</html>

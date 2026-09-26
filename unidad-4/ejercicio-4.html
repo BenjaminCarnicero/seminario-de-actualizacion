@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Circulos concentricos</title>
+    <script src="MVCCanvas.js"></script>
+</head>
+<body>
+
+    <script type="text/javascript">
+        
+        function exercise4(canvas) {
+            // dimensiones a 500x500px
+            canvas.width = 500;
+            canvas.height = 500;
+
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;  // 250
+            const centerY = canvas.height / 2; // 250
+            const step = 25;
+
+            // Circulos concéntricos desde el radio máximo hasta 25px
+            for (let radius = centerX; radius > 0; radius -= step) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+
+        
+        function main() {
+            const view = new View();
+            document.body.appendChild(view);
+
+            view.render(exercise4);
+        }
+
+        window.onload = main;
+    </script>
+
+</body>
+</html>

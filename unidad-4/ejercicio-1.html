@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Exercise 1</title>
+    <script src="MVCCanvas.js"></script>
+</head>
+<body>
+
+    <script type="text/javascript">
+
+        function drawCross(canvas) {
+            const ctx = canvas.getContext('2d');
+
+            ctx.beginPath();
+            
+            // Primera diagonal
+            ctx.moveTo(0, 0);
+            ctx.lineTo(canvas.width, canvas.height);
+
+            // Segunda diagonal:
+            ctx.moveTo(canvas.width, 0);
+            ctx.lineTo(0, canvas.height);
+
+            ctx.stroke();
+        }
+
+        function main() {
+            const view = new View();
+            document.body.appendChild(view);
+
+            view.render(drawCross);
+        }
+
+        window.onload = main;
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Poligonos</title>
+    <script src="MVCCanvas.js"></script>
+</head>
+<body>
+
+    <script type="text/javascript">
+        
+        function drawPolygon(canvas, pointList) {
+            if (!pointList || pointList.length === 0) return;
+
+            const ctx = canvas.getContext('2d');
+
+            ctx.beginPath();
+            
+            
+            ctx.moveTo(pointList[0].x, pointList[0].y);
+
+            // Iterar sobre los puntos restantes desde el primer punto
+            for (let i = 1; i < pointList.length; i++) {
+                ctx.lineTo(pointList[i].x, pointList[i].y);
+            }
+
+            ctx.closePath();
+            
+            ctx.stroke();
+        }
+
+
+        function exercise3(canvas) {
+            const centerX = canvas.width / 2;  // 400
+            const centerY = canvas.height / 2; // 300
+
+            // Hexagono de ejemplificacion
+            const radius = 80;
+            const hexagonPoints = [];
+            const sides = 6;
+
+            for (let i = 0; i < sides; i++) {
+                const angle = (Math.PI * 2 / sides) * i;
+                hexagonPoints.push({
+                    x: centerX + radius * Math.cos(angle),
+                    y: centerY + radius * Math.sin(angle)
+                });
+            }
+
+            drawPolygon(canvas, hexagonPoints);
+        }
+
+
+        function main() {
+            const view = new View();
+            document.body.appendChild(view);
+
+            view.render(exercise3);
+        }
+
+        window.onload = main;
+    </script>
+
+</body>
+</html>

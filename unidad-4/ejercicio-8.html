@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Grafico con etiquetas</title>
+    <script src="MVCCanvas.js"></script>
+</head>
+<body>
+
+    <script type="text/javascript">
+        
+        function drawFlexiblePieChart(canvas, dataList) {
+            if (!dataList || dataList.length === 0) return;
+
+            const ctx = canvas.getContext('2d');
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 180;
+
+            
+            let total = 0;
+            for (let i = 0; i < dataList.length; i++) {
+                total += dataList[i].value;
+            }
+
+            let startAngle = 0;
+
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let i = 0; i < dataList.length; i++) {
+                const item = dataList[i];
+                const percentage = item.value / total;
+                const endAngle = startAngle + (percentage * Math.PI * 2);
+
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.stroke();
+
+                // Etiqueta y porcentaje
+                const middleAngle = (startAngle + endAngle) / 2;
+                const textDistance = radius * 0.65;
+                const textX = centerX + textDistance * Math.cos(middleAngle);
+                const textY = centerY + textDistance * Math.sin(middleAngle);
+
+                const percentageText = (percentage * 100).toFixed(0) + '%';
+                const labelText = item.label + ' (' + percentageText + ')';
+
+                ctx.fillText(labelText, textX, textY);
+
+                startAngle = endAngle;
+            }
+        }
+
+
+        function exercise8(canvas) {
+            
+            const data = [
+                { label: 'Rock', value: 50 },
+                { label: 'Pop', value: 30 },
+                { label: 'Jazz', value: 10 },
+                { label: 'Musica clasica', value: 10 }
+            ];
+
+            drawFlexiblePieChart(canvas, data);
+        }
+
+
+        function main() {
+            const view = new View();
+            document.body.appendChild(view);
+
+            view.render(exercise8);
+        }
+
+        window.onload = main;
+    </script>
+
+</body>
+</html>

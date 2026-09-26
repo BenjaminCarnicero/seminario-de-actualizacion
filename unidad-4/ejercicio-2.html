@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Triangulo</title>
+    <script src="MVCCanvas.js"></script>
+</head>
+<body>
+
+    <script type="text/javascript">
+        // dibuja un triángulo dados 3 puntos
+        function drawTriangle(canvas, p1, p2, p3) {
+            const ctx = canvas.getContext('2d');
+
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.lineTo(p3.x, p3.y);
+            ctx.closePath();
+            
+            ctx.stroke();
+        }
+
+        function exercise2(canvas) {
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const offset = 100;
+
+            // tres vertices a partir de las coordenadas del centro
+            const v1 = { x: centerX, y: centerY - offset };
+            const v2 = { x: centerX + offset, y: centerY + offset };
+            const v3 = { x: centerX - offset, y: centerY + offset };
+
+            drawTriangle(canvas, v1, v2, v3);
+        }
+
+        function main() {
+            const view = new View();
+            document.body.appendChild(view);
+
+            view.render(exercise2);
+        }
+
+        window.onload = main;
+    </script>
+
+</body>
+</html>
