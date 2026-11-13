@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Ejercicio 16</title>
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+class Model extends EventTarget {
+    constructor() {
+        super();
+        this._firstColor = '#000000';
+        this._secondColor = '#ffffff';
+    }
+
+    setFirstColor(color) {
+        this._firstColor = color;
+        this.changed();
+    }
+
+    setSecondColor(color) {
+        this._secondColor = color;
+        this.changed();
+    }
+
+    getFirstColor() {
+        return this._firstColor;
+    }
+
+    getSecondColor() {
+        return this._secondColor;
+    }
+   
+    changed() {
+        this.dispatchEvent(new CustomEvent('changed'));
+    }
+}
+
+class View extends HTMLElement {
+    constructor() {
+        super();
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 800;
+        this._canvas.height = 600;
+        this._canvas.style.border = '1px solid black';
+        this.ctx = this._canvas.getContext('2d');
+
+        this.input1 = document.createElement('input');
+        this.input2 = document.createElement('input');
+
+        this.input1.placeholder = 'primer color';
+        this.input1.type = 'color';
+        this.input1.value = '#000000';
+
+        this.input2.placeholder = 'segundo color';
+        this.input2.type = 'color';
+        this.input2.value = '#ffffff';
+
+        this.container = document.createElement('div');
+        this.container.style.display = 'flex';
+        this.container.style.gap = '10px';
+        this.container.style.marginTop = '10px';
+
+        this.container.appendChild(this.input1);
+        this.container.appendChild(this.input2);
+
+        this.appendChild(this._canvas);
+        this.appendChild(this.container);
+
+        // Renderizado inicial
+        this.updateGradient('#000000', '#ffffff');
+    }
+    
+    updateGradient(fColor, sColor) {
+        let initialAngle = 0;
+        let finalAngle = 2 * Math.PI;
+        let radius = this._canvas.width / 4;
+        let x = this._canvas.width / 2;
+        let y = this._canvas.height / 2;
+
+        this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+
+        this.ctx.beginPath();
+        
+        let gradient = this.ctx.createRadialGradient(x, y, 0, x, y, radius);
+        gradient.addColorStop(0, fColor);
+        gradient.addColorStop(1, sColor);
+
+        this.ctx.fillStyle = gradient;
+        this.ctx.arc(x, y, radius, initialAngle, finalAngle);
+        this.ctx.fill();
+    }
+
+    connectedCallback() {
+        this.boundOnFirst = this._onInputFirst.bind(this);
+        this.boundOnSecond = this._onInputSecond.bind(this);
+        
+        this.input1.addEventListener('input', this.boundOnFirst);
+        this.input2.addEventListener('input', this.boundOnSecond);
+    }
+
+    disconnectedCallback() {
+        this.input1.removeEventListener('input', this.boundOnFirst);
+        this.input2.removeEventListener('input', this.boundOnSecond);
+        this.boundOnFirst = null;
+        this.boundOnSecond = null;
+    }
+   
+    _onInputFirst(event) {
+        this._onSave('inicio', event.target.value);
+    }
+
+    _onInputSecond(event) {
+        this._onSave('fin', event.target.value);
+    }
+
+    _onSave(type, value) {
+        this.dispatchEvent(new CustomEvent('request', {
+            detail: { tipo: type, valor: value }
+        }));
+    }
+}
+
+customElements.define('x-view', View);
+
+
+class Controller {
+    constructor(view, model) {
+        this._view = view;
+        this._model = model;
+        this._onModelChanged = this.onModelChanged.bind(this);
+        this._onViewRequest = this.onViewRequest.bind(this);
+    }
+
+    enable() {
+        this._model.addEventListener('changed', this._onModelChanged);
+        this._view.addEventListener('request', this._onViewRequest);
+    }
+
+    disable() {
+        this._model.removeEventListener('changed', this._onModelChanged);
+        this._view.removeEventListener('request', this._onViewRequest);
+    }
+
+    onModelChanged() {
+        let fcolor = this._model.getFirstColor();
+        let scolor = this._model.getSecondColor();
+        this._view.updateGradient(fcolor, scolor);
+    }
+
+    onViewRequest(event) {
+        let data = event.detail;
+        if (data.tipo === 'inicio') {
+            this._model.setFirstColor(data.valor);
+        } else if (data.tipo === 'fin') {
+            this._model.setSecondColor(data.valor);
+        }
+    }
+}
+
+function main() {
+    let myModel = new Model();
+    let myView = new View();
+    let myController = new Controller(myView, myModel);
+    myController.enable();
+    document.body.appendChild(myView);
+}
+
+window.onload = main;
+
+</script>
+
+</body>
+</html>

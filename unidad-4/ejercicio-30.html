@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Ejercicio 30 </title>
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+class Model extends EventTarget {
+    constructor() {
+        super();
+    }
+   
+    changed() {
+        this.dispatchEvent(new CustomEvent('changed'));
+    }
+}
+
+class View extends HTMLElement {
+    constructor() {
+        super();
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 800;
+        this._canvas.height = 600;
+        this._canvas.style.border = '1px solid black';
+
+        this.ctx = this._canvas.getContext('2d');
+        
+        this.appendChild(this._canvas);
+
+        this.drawSquare();
+    }
+    
+    drawSquare() {
+        let x = 50;
+        let y = 250;
+        let squareWidth = 100;
+        let squareHeight = 100;
+        let tanX = Math.tan(Math.PI / 4);
+
+        this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+
+        this.ctx.save();
+
+        //inclinación oblicua sobre el eje X (Skew X)
+        this.ctx.transform(1, 0, tanX, 1, 0, 0);
+
+
+        this.ctx.beginPath();
+        this.ctx.rect(x, y, squareWidth, squareHeight);
+        this.ctx.strokeStyle = 'blue';
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
+        this.ctx.closePath();
+
+        this.ctx.restore();
+    }
+
+    set value(x) {}
+   
+    get value() {}
+
+    connectedCallback() {
+    }
+
+    disconnectedCallback() {
+
+    }
+
+}
+
+customElements.define('x-view', View);
+
+
+class Controller {
+    constructor(view, model) {
+        this._view = view;
+        this._model = model;
+    }
+
+    enable() {}
+
+    disable() {}
+
+    onModelChanged() {}
+
+    onViewRequest(event) {}
+}
+
+function main() {
+    let myModel = new Model();
+    let myView = new View();
+    let myController = new Controller(myView, myModel);
+    myController.enable();
+    document.body.appendChild(myView);
+}
+
+window.onload = main;
+
+</script>
+
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Ejercicio 19 </title>
+    <script src="../MVCCanvas.js"></script>
+    <script src="ejercicio-19.js"></script>
+</head>
+<body>
+
+<script>
+    function main() {
+        let btn19 = document.createElement('button');
+        let btnClear = document.createElement('button');
+        let myView = new View();
+        let myModel = new Model();
+        let myController = new Controller(myView, myModel);
+        
+        myController.setDrawFunction(ejercicio19);
+        myController.enable();
+
+        // Controles de línea como el selector de figuras
+        myView.addLineControls();
+        myView.addFigureTypeControl();
+
+        btn19.innerText = 'Cargar Figura';
+        btn19.onclick = myController._loadFigures.bind(myController);
+
+        btnClear.innerText = 'Limpiar Canvas';
+        btnClear.onclick = myController._clear.bind(myController);
+
+        document.body.appendChild(btn19);
+        document.body.appendChild(btnClear);
+        document.body.appendChild(myView);
+    }
+
+    window.onload = main;
+</script>
+
+</body>
+</html>

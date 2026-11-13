@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Ejercicio 21</title>
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+class Model extends EventTarget {
+    constructor() {
+        super();
+    }
+   
+    changed() {
+        this.dispatchEvent(new CustomEvent('changed'));
+    }
+}
+
+class View extends HTMLElement {
+    constructor() {
+        super();
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 600;
+        this._canvas.height = 800;
+        this._canvas.style.border = '1px solid black';
+        
+        let textureImage = new Image();
+        let context = this._canvas.getContext('2d');
+        
+        let coordinateX = 0;
+        let coordinateY = 0;
+        let targetWidth = this._canvas.width;
+        let targetHeight = this._canvas.height;
+        
+        textureImage.src = 'messi.jpg';
+        
+        textureImage.onload = function() {
+            //ancho y alto del área de dibujo
+            context.drawImage(textureImage, coordinateX, coordinateY, targetWidth, targetHeight);
+        };
+        
+        this.appendChild(this._canvas);
+    }
+
+    set value(x) {}
+   
+    get value() {}
+
+    connectedCallback() {
+    }
+
+    disconnectedCallback() {
+    }
+   
+    _onSave() {}
+}
+
+customElements.define('x-view', View);
+
+
+class Controller {
+    constructor(view, model) {
+        this._view = view;
+        this._model = model;
+        this._onModelChanged = this.onModelChanged.bind(this);
+        this._onViewRequest = this.onViewRequest.bind(this);
+    }
+
+    enable() {
+        this._model.addEventListener('changed', this._onModelChanged);
+        this._view.addEventListener('request', this._onViewRequest);
+    }
+
+    disable() {
+        this._model.removeEventListener('changed', this._onModelChanged);
+        this._view.removeEventListener('request', this._onViewRequest);
+    }
+
+    onModelChanged() {}
+
+    onViewRequest(event) {}
+}
+
+function main() {
+    let myModel = new Model();
+    let myView = new View();
+    let myController = new Controller(myView, myModel);
+    myController.enable();
+    document.body.appendChild(myView);
+}
+
+window.onload = main;
+
+</script>
+
+</html>

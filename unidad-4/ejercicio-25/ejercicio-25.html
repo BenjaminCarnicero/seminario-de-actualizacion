@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Ejercicio 25 </title>
+</head>
+
+<body>
+
+<script type="text/javascript">
+
+class Model extends EventTarget {
+    constructor() {
+        super();
+    }
+   
+    changed() {
+        this.dispatchEvent(new CustomEvent('changed'));
+    }
+}
+
+class View extends HTMLElement {
+    constructor() {
+        super();
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 600;
+        this._canvas.height = 600;
+        this._canvas.style.border = '1px solid black';
+        
+        this.ctx = this._canvas.getContext('2d');
+        
+        this.btnSave = document.createElement('button');
+        this.btnRestore = document.createElement('button');
+        
+        this.btnSave.innerText = 'Aplicar Filtros';
+        this.btnRestore.innerText = 'Restaurar';
+
+        this.img = new Image();
+        this.img.src = 'messi.jpg';
+
+        this.img.onload = () => {
+            this.ctx.drawImage(this.img, 0, 0, this._canvas.width, this._canvas.height);
+        };
+
+        this.appendChild(this._canvas);
+        this.appendChild(document.createElement('br'));
+        this.appendChild(this.btnSave);
+        this.appendChild(this.btnRestore);
+    }
+
+    newConfig() {
+        this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+        this.ctx.save();
+        this.ctx.filter = 'brightness(120%) contrast(150%) blur(2px)';
+        this.ctx.drawImage(this.img, 0, 0, this._canvas.width, this._canvas.height);
+
+        console.log('filtro aplicado');
+    }
+
+    restore() {
+        this.ctx.restore();
+        this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+        this.ctx.drawImage(this.img, 0, 0, this._canvas.width, this._canvas.height);
+
+        console.log('configuración base');
+    }
+
+    set value(x) {}
+   
+    get value() {}
+
+    connectedCallback() {
+        this.btnSave.onclick = this.newConfig.bind(this);
+        this.btnRestore.onclick = this.restore.bind(this);
+    }
+
+    disconnectedCallback() {
+        this.btnSave.onclick = null;
+        this.btnRestore.onclick = null;
+    }
+   
+    _onSave() {}
+}
+
+customElements.define('x-view', View);
+
+
+class Controller {
+    constructor(view, model) {
+        this._view = view;
+        this._model = model;
+    }
+
+    enable() {
+    }
+
+    disable() {
+    }
+
+    onModelChanged() {
+    }
+
+    onViewRequest(event) {
+    }
+}
+
+function main() {
+    let myModel = new Model();
+    let myView = new View();
+    let myController = new Controller(myView, myModel);
+    myController.enable();
+    document.body.appendChild(myView);
+}
+
+window.onload = main;
+
+</script>
+
+</body>
+</html>
